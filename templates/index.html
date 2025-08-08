@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered K-Means Clustering Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .step {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            border-color: #4facfe;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.1);
+        }
+
+        .step h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .step-number {
+            background: #4facfe;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-upload input[type=file] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-btn {
+            display: block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .file-upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #3d8bfe;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkbox-item:hover {
+            background: #e9ecef;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .data-preview {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .table th {
+            background: #4facfe;
+            color: white;
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .plot-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .plot-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .cluster-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI-Powered K-Means Clustering Tool</h1>
+            <p>Upload your CSV data and discover hidden patterns with machine learning</p>
+        </div>
+
+        <div class="content">
+            <!-- Step 1: File Upload -->
+            <div class="step">
+                <h3><span class="step-number">1</span>Upload Your Dataset</h3>
+                <div class="file-upload">
+                    <input type="file" id="csvFile" accept=".csv">
+                    <div class="file-upload-btn">
+                        📁 Choose CSV File
+                    </div>
+                </div>
+                <div id="fileInfo" class="hidden">
+                    <div class="data-preview">
+                        <h4>Dataset Preview:</h4>
+                        <div id="datasetInfo"></div>
+                        <div id="dataPreview"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Column Selection -->
+            <div class="step hidden" id="columnSelection">
+                <h3><span class="step-number">2</span>Select Features for Clustering</h3>
+                <p>Choose the numeric columns you want to use for clustering:</p>
+                <div id="columnCheckboxes" class="checkbox-group"></div>
+            </div>
+
+            <!-- Step 3: Clustering Parameters -->
+            <div class="step hidden" id="clusteringParams">
+                <h3><span class="step-number">3</span>Set Clustering Parameters</h3>
+                <div class="form-group">
+                    <label for="numClusters">Number of Clusters (K):</label>
+                    <input type="number" id="numClusters" class="form-control" min="2" max="20" value="3">
+                </div>
+                <button id="runClustering" class="btn btn-success">🚀 Run K-Means Clustering</button>
+                <button id="resetData" class="btn btn-secondary">🔄 Reset Data</button>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Running K-Means clustering...</p>
+            </div>
+
+            <!-- Results -->
+            <div class="step hidden" id="results">
+                <h3><span class="step-number">4</span>Clustering Results</h3>
+                <div id="clusterStats" class="cluster-stats"></div>
+                <div id="plotContainer" class="plot-container"></div>
+                <div class="form-group">
+                    <button id="downloadBtn" class="btn btn-success">💾 Download Clustered Dataset</button>
+                </div>
+                <div id="clusteredPreview" class="data-preview"></div>
+            </div>
+
+            <!-- Messages -->
+            <div id="messages"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedColumns = [];
+        let datasetLoaded = false;
+
+        // File upload handler
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                uploadFile(file);
+            }
+        });
+
+        // Upload file function
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            showMessage('Uploading file...', 'info');
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    displayDatasetInfo(data.data);
+                    datasetLoaded = true;
+                    document.getElementById('columnSelection').classList.remove('hidden');
+                    document.getElementById('clusteringParams').classList.remove('hidden');
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('Error uploading file: ' + error.message, 'error');
+            });
+        }
+
+        // Display dataset information
+        function displayDatasetInfo(data) {
+            document.getElementById('fileInfo').classList.remove('hidden');
+            
+            const infoHtml = `
+                <p><strong>Shape:</strong> ${data.shape[0]} rows × ${data.shape[1]} columns</p>
+                <p><strong>Columns:</strong> ${data.columns.join(', ')}</p>
+            `;
+            document.getElementById('datasetInfo').innerHTML = infoHtml;
+
+            // Display data preview
+            const previewHtml = createTableHtml(data.head, data.columns);
+            document.getElementById('dataPreview').innerHTML = previewHtml;
+
+            // Create column checkboxes for numeric columns
+            createColumnCheckboxes(data.columns, data.dtypes);
+        }
+
+        // Create column checkboxes
+        function createColumnCheckboxes(columns, dtypes) {
+            const container = document.getElementById('columnCheckboxes');
+            container.innerHTML = '';
+
+            columns.forEach(column => {
+                if (dtypes[column].includes('int') || dtypes[column].includes('float')) {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    checkboxItem.innerHTML = `
+                        <input type="checkbox" id="col_${column}" value="${column}">
+                        <label for="col_${column}">${column} (${dtypes[column]})</label>
+                    `;
+                    container.appendChild(checkboxItem);
+
+                    // Add event listener
+                    checkboxItem.querySelector('input').addEventListener('change', updateSelectedColumns);
+                }
+            });
+        }
+
+        // Update selected columns
+        function updateSelectedColumns() {
+            selectedColumns = [];
+            document.querySelectorAll('#columnCheckboxes input:checked').forEach(checkbox => {
+                selectedColumns.push(checkbox.value);
+            });
+        }
+
+        // Run clustering
+        document.getElementById('runClustering').addEventListener('click', function() {
+            if (selectedColumns.length === 0) {
+                showMessage('Please select at least one column for clustering.', 'error');
+                return;
+            }
+
+            const numClusters = parseInt(document.getElementById('numClusters').value);
+            if (numClusters < 2) {
+                showMessage('Number of clusters must be at least 2.', 'error');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').classList.add('hidden');
+
+            fetch('/cluster', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    columns: selectedColumns,
+                    n_clusters: numClusters
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    displayResults(data);
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                showMessage('Error during clustering: ' + error.message, 'error');
+            });
+        });
+
+        // Display clustering results
+        function displayResults(data) {
+            document.getElementById('results').classList.remove('hidden');
+
+            // Display cluster statistics
+            const statsContainer = document.getElementById('clusterStats');
+            statsContainer.innerHTML = '';
+            
+            Object.entries(data.cluster_stats).forEach(([cluster, count]) => {
+                const statCard = document.createElement('div');
+                statCard.className = 'stat-card';
+                statCard.innerHTML = `
+                    <h4>Cluster ${cluster}</h4>
+                    <div class="number">${count}</div>
+                    <p>data points</p>
+                `;
+                statsContainer.appendChild(statCard);
+            });
+
+            // Display plot if available
+            if (data.plot) {
+                document.getElementById('plotContainer').innerHTML = `
+                    <h4>Cluster Visualization</h4>
+                    <img src="data:image/png;base64,${data.plot}" alt="Cluster Plot">
+                `;
+            }
+
+            // Display clustered data preview
+            if (data.clustered_data) {
+                const columns = Object.keys(data.clustered_data[0]);
+                const previewHtml = createTableHtml(data.clustered_data, columns);
+                document.getElementById('clusteredPreview').innerHTML = `
+                    <h4>Clustered Data Preview (First 10 rows):</h4>
+                    ${previewHtml}
+                `;
+            }
+        }
+
+        // Create table HTML
+        function createTableHtml(data, columns) {
+            let html = '<table class="table"><thead><tr>';
+            columns.forEach(col => {
+                html += `<th>${col}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            data.forEach(row => {
+                html += '<tr>';
+                columns.forEach(col => {
+                    const value = row[col];
+                    html += `<td>${value !== null && value !== undefined ? value : 'N/A'}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
+
+        // Download clustered dataset
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            window.location.href = '/download';
+        });
+
+        // Reset data
+        document.getElementById('resetData').addEventListener('click', function() {
+            fetch('/reset')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    document.getElementById('results').classList.add('hidden');
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('Error resetting data: ' + error.message, 'error');
+            });
+        });
+
+        // Show message function
+        function showMessage(message, type) {
+            const messagesContainer = document.getElementById('messages');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            messagesContainer.appendChild(alertDiv);
+            
+            // Remove message after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
